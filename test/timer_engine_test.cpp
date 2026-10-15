@@ -30,7 +30,6 @@ int main() {
     check(timer.is_running(), "Timer starts");
 
     std::this_thread::sleep_for(1100ms);
-
     timer.pause();
 
     const auto paused_remaining = timer.remaining();
@@ -53,16 +52,16 @@ int main() {
     check(!timer.is_running(), "Reset stops timer");
     check(timer.remaining() == 3s, "Reset restores duration");
 
-    bool rejected_invalid_duration = false;
+    bool rejected_zero_duration = false;
 
     try {
         TimerEngine invalid{0s};
     } catch (const std::invalid_argument&) {
-        rejected_invalid_duration = true;
+        rejected_zero_duration = true;
     }
 
     check(
-        rejected_invalid_duration,
+        rejected_zero_duration,
         "Zero duration is rejected"
     );
 

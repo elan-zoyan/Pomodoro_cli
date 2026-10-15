@@ -27,3 +27,28 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     )
 endif()
 
+include(CTest)
+
+if(BUILD_TESTING)
+    add_executable(timer_engine_test
+        tests/timer_engine_test.cpp
+        src/core/timer_engine.cpp
+    )
+
+    target_include_directories(timer_engine_test
+        PRIVATE include
+    )
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(timer_engine_test PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
+        )
+    endif()
+
+    add_test(
+        NAME timer_engine_test
+        COMMAND timer_engine_test
+    )
+endif()
