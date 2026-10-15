@@ -63,29 +63,71 @@ int main() {
     check(!timer.is_running(), "Reset stops timer");
     check(timer.remaining() == 4s, "Reset restores duration");
 
+    timer.set_duration(2s);
+
+    check(
+        !timer.is_running(),
+        "Changing duration stops the timer"
+    );
+
+    check(
+        timer.remaining() == 2s,
+        "Changing duration updates remaining time"
+    );
+
     bool rejected_zero_duration = false;
 
     try {
-        TimerEngine invalid{0s};
+        timer.set_duration(0s);
     } catch (const std::invalid_argument&) {
         rejected_zero_duration = true;
     }
 
-    check(rejected_zero_duration, "Zero duration is rejected");
+    check(
+        rejected_zero_duration,
+        "Setting zero duration is rejected"
+    );
 
     bool rejected_negative_duration = false;
 
     try {
-        TimerEngine invalid{-1s};
+        timer.set_duration(-1s);
     } catch (const std::invalid_argument&) {
         rejected_negative_duration = true;
     }
 
     check(
         rejected_negative_duration,
-        "Negative duration is rejected"
+        "Setting negative duration is rejected"
+    );
+
+    bool rejected_zero_constructor = false;
+
+    try {
+        TimerEngine invalid{0s};
+    } catch (const std::invalid_argument&) {
+        rejected_zero_constructor = true;
+    }
+
+    check(
+        rejected_zero_constructor,
+        "Zero constructor duration is rejected"
+    );
+
+    bool rejected_negative_constructor = false;
+ 
+    try {
+        TimerEngine invalid{-1s};
+    } catch (const std::invalid_argument&) {
+        rejected_negative_constructor = true;
+    }
+
+    check(
+        rejected_negative_constructor,
+        "Negative constructor duration is rejected"
     );
 
     std::cout << "All tests completed.\n";
+
     return EXIT_SUCCESS;
 }

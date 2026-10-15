@@ -15,6 +15,7 @@ public:
     void pause();
     void resume();
     void reset();
+    void set_duration(Duration duration);
 
     Duration remaining() const;
     bool is_running() const;
