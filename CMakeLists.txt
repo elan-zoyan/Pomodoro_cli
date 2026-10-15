@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.20)
 
 project(pomodoro-cli
@@ -10,23 +11,22 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+find_package(nlohmann_json REQUIRED)
+
 add_executable(pomodoro-cli
     src/main.cpp
     src/core/timer_engine.cpp
     src/core/session_manager.cpp
+    src/core/config_manager.cpp
 )
 
 target_include_directories(pomodoro-cli
     PRIVATE include
 )
 
-if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(pomodoro-cli PRIVATE
-        -Wall
-        -Wextra
-        -Wpedantic
-    )
-endif()
+target_link_libraries(pomodoro-cli
+    PRIVATE nlohmann_json::nlohmann_json
+)
 
 include(CTest)
 
@@ -50,18 +50,34 @@ if(BUILD_TESTING)
         PRIVATE include
     )
 
-    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        target_compile_options(timer_engine_test PRIVATE
-            -Wall
-            -Wextra
-            -Wpedantic
-        )
+    add_executable(config_manager_test
+        test/config_manager_test.cpp
+        src/core/config_manager.cpp
+        src/core/timer_engine.cpp
+        src/core/session_manager.cpp
+    )
 
-        target_compile_options(session_manager_test PRIVATE
-            -Wall
-            -Wextra
-            -Wpedantic
+    target_include_directories(config_manager_test
+        PRIVATE include
+    )
+
+    target_link_libraries(config_manager_test
+        PRIVATE nlohmann_json::nlohmann_json
+    )
+
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        foreach(target
+            pomodoro-cli
+            timer_engine_test
+            session_manager_test
+            config_manager_test
         )
+            target_compile_options(${target} PRIVATE
+                -Wall
+                -Wextra
+                -Wpedantic
+            )
+        endforeach()
     endif()
 
     add_test(
@@ -73,4 +89,10 @@ if(BUILD_TESTING)
         NAME session_manager_test
         COMMAND session_manager_test
     )
+
+    add_test(
+        NAME config_manager_test
+        COMMAND config_manager_test
+    )
 endif()
+
