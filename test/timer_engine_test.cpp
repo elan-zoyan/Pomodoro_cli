@@ -20,21 +20,22 @@ void check(bool condition, const char* message) {
 int main() {
     using pomodoro::TimerEngine;
 
-    TimerEngine timer{3s};
+    TimerEngine timer{4s};
 
     check(!timer.is_running(), "Timer starts stopped");
-    check(timer.remaining() == 3s, "Initial duration is correct");
+    check(timer.remaining() == 4s, "Initial duration is correct");
 
     timer.start();
 
     check(timer.is_running(), "Timer starts");
 
-    std::this_thread::sleep_for(1100ms);
+    std::this_thread::sleep_for(1200ms);
     timer.pause();
 
     const auto paused_remaining = timer.remaining();
 
     check(!timer.is_running(), "Timer pauses");
+    check(paused_remaining <= 3s, "Elapsed time is recorded");
 
     std::this_thread::sleep_for(300ms);
 
@@ -47,10 +48,20 @@ int main() {
 
     check(timer.is_running(), "Timer resumes");
 
+    const auto before_second_resume = timer.remaining();
+
+    timer.resume();
+
+    check(
+        timer.remaining() <= before_second_resume,
+        "Repeated resume does not restart the timer"
+    );
+
+    timer.pause();
     timer.reset();
 
     check(!timer.is_running(), "Reset stops timer");
-    check(timer.remaining() == 3s, "Reset restores duration");
+    check(timer.remaining() == 4s, "Reset restores duration");
 
     bool rejected_zero_duration = false;
 
@@ -60,9 +71,19 @@ int main() {
         rejected_zero_duration = true;
     }
 
+    check(rejected_zero_duration, "Zero duration is rejected");
+
+    bool rejected_negative_duration = false;
+
+    try {
+        TimerEngine invalid{-1s};
+    } catch (const std::invalid_argument&) {
+        rejected_negative_duration = true;
+    }
+
     check(
-        rejected_zero_duration,
-        "Zero duration is rejected"
+        rejected_negative_duration,
+        "Negative duration is rejected"
     );
 
     std::cout << "All tests completed.\n";

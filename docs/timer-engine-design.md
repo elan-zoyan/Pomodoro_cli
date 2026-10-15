@@ -67,3 +67,12 @@ Reset must stop the countdown and restore the original duration.
 - Reset a running, paused, and finished timer.
 - Verify that a completed timer reports zero remaining time.
 
+
+## Resume Timing Rule
+
+The timer must preserve the remaining duration when paused. When resumed, it must begin counting from that saved duration without counting the time spent paused.
+
+The engine should store a new start timestamp on resume and calculate elapsed time only while running.
+
+Repeated calls to `resume()` must not reset the countdown.
+
