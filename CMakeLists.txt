@@ -31,7 +31,7 @@ include(CTest)
 
 if(BUILD_TESTING)
     add_executable(timer_engine_test
-        tests/timer_engine_test.cpp
+        test/timer_engine_test.cpp
         src/core/timer_engine.cpp
     )
 
