@@ -12,12 +12,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 find_package(nlohmann_json REQUIRED)
+find_package(ftxui REQUIRED)
 
 add_executable(pomodoro-cli
     src/main.cpp
     src/core/timer_engine.cpp
     src/core/session_manager.cpp
     src/core/config_manager.cpp
+    src/core/session_history.cpp
 )
 
 target_include_directories(pomodoro-cli
@@ -25,7 +27,11 @@ target_include_directories(pomodoro-cli
 )
 
 target_link_libraries(pomodoro-cli
-    PRIVATE nlohmann_json::nlohmann_json
+    PRIVATE
+        nlohmann_json::nlohmann_json
+        ftxui::screen
+        ftxui::dom
+        ftxui::component
 )
 
 include(CTest)
@@ -65,12 +71,28 @@ if(BUILD_TESTING)
         PRIVATE nlohmann_json::nlohmann_json
     )
 
+    add_executable(session_history_test
+        test/session_history_test.cpp
+        src/core/session_history.cpp
+        src/core/session_manager.cpp
+        src/core/timer_engine.cpp
+    )
+
+    target_include_directories(session_history_test
+        PRIVATE include
+    )
+
+    target_link_libraries(session_history_test
+        PRIVATE nlohmann_json::nlohmann_json
+    )
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         foreach(target
             pomodoro-cli
             timer_engine_test
             session_manager_test
             config_manager_test
+            session_history_test
         )
             target_compile_options(${target} PRIVATE
                 -Wall
@@ -93,6 +115,11 @@ if(BUILD_TESTING)
     add_test(
         NAME config_manager_test
         COMMAND config_manager_test
+    )
+
+    add_test(
+        NAME session_history_test
+        COMMAND session_history_test
     )
 endif()
 
